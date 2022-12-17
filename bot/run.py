@@ -2,10 +2,8 @@ import time
 import logging
 import asyncio
 import configparser
+from extract import extra_price
 from aiogram import Bot, Dispatcher, executor, types
-import requests
-
-MSG = "Программировал ли ты сегодня, {}?"
 
 logging.basicConfig(level=logging.INFO)
 configpath = "configtelebot.conf"
@@ -31,25 +29,9 @@ async def start_handler(message: types.Message):
     await message.reply(f"Привет, {user_full_name}!")
 
 
-
-symbol = 'BTCUSDT'
-level = 30000
-
-
 @dp.message_handler(commands=["1"])
 async def start_handler(message: types.Message):
-    """
-
-    :param message:
-    :return:
-    """
-    url = 'https://fapi.binance.com/fapi/v1/trades?symbol=' + symbol + '&limit=' + '1'
-    data = requests.get(url).json()
-    price = data[-1]['price']
-
-    if float(price) < level:
-        text = symbol + ' : ' + price
-        await message.reply(f"Торгуется, {text}!")
+    await message.answer(f"Торгуется, {extra_price()}!")
 
 executor.start_polling(dp)
 
