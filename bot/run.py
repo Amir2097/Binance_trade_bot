@@ -3,6 +3,7 @@ import logging
 import asyncio
 import configparser
 from aiogram import Bot, Dispatcher, executor, types
+import requests
 
 MSG = "Программировал ли ты сегодня, {}?"
 
@@ -24,10 +25,22 @@ async def start_handler(message: types.Message):
     logging.info(f'{user_id} {user_full_name} {time.asctime()}')
     await message.reply(f"Привет, {user_full_name}!")
 
-    for i in range(7):
-        await asyncio.sleep(60 * 60 * 24)
-        await bot.send_message(user_id, MSG.format(user_name))
 
 
-if __name__ == "__main__":
-    executor.start_polling(dp)
+symbol = 'BTCUSDT'
+level = 30000
+
+
+@dp.message_handler(commands=["1"])
+async def coin_handler(message: types.Message):
+    url = 'https://fapi.binance.com/fapi/v1/trades?symbol=' + symbol + '&limit=' + '1'
+    data = requests.get(url).json()
+    price = data[-1]['price']
+    print(price)
+
+    if float(price) < level:
+        text = symbol + ' : ' + price
+        print(text)
+        await message.reply(f"Привет, {text}!")
+
+executor.start_polling(dp)
